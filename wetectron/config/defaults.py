@@ -456,6 +456,10 @@ _C.SOLVER.CHECKPOINT_PERIOD = 2500
 # see 2 images per batch
 _C.SOLVER.IMS_PER_BATCH = 16
 
+# ITER_SIZE allows for the faking of batches
+# Effective batch size = ITER_SIZE * IMS_PER_BATCH
+_C.SOLVER.IMS_PER_BATCH
+
 # ---------------------------------------------------------------------------- #
 # Solver CDB
 # ---------------------------------------------------------------------------- #

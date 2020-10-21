@@ -65,6 +65,7 @@ def do_train(
     logger.info("Start training")
     max_iter = len(data_loader)
     start_iter = arguments["iteration"]
+    iter_size = arguments["iter_size"]
     model.train()
     start_training_time = time.time()
     end = time.time()
@@ -75,15 +76,17 @@ def do_train(
             continue
 
         data_time = time.time() - end
+
+        if iteration % iter_size == 0:
+            cur_lr = optimizer.param_groups[0]["lr"]
+            scheduler.step()
+            new_lr = optimizer.param_groups[0]["lr"]
+            if cur_lr > 1e-7 and cur_lr != new_lr:
+                update_momentum(optimizer, cur_lr, new_lr, logger)
+        
         iteration = iteration + 1
         arguments["iteration"] = iteration
-        
-        cur_lr = optimizer.param_groups[0]["lr"]
-        scheduler.step()
-        new_lr = optimizer.param_groups[0]["lr"]
-        if cur_lr > 1e-7 and cur_lr != new_lr:
-            update_momentum(optimizer, cur_lr, new_lr, logger)
-
+    
         images = images.to(device)
         targets = [target.to(device) for target in targets]
         rois = [r.to(device) if r is not None else None for r in rois]
@@ -99,13 +102,15 @@ def do_train(
         metrics_reduced = reduce_loss_dict(metrics)
         meters.update(**metrics_reduced)
 
-        optimizer.zero_grad()
+        
         # Note: If mixed precision is not used, this ends up doing nothing
         # Otherwise apply loss scaling for mixed-precision recipe
         with amp.scale_loss(losses, optimizer) as scaled_losses:
             scaled_losses.backward()
 
-        optimizer.step()
+        if iteration % iter_size == 0:
+            optimizer.step()
+            optimizer.zero_grad()
 
         batch_time = time.time() - end
         end = time.time()

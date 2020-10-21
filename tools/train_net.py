@@ -11,6 +11,7 @@ from wetectron.utils.env import setup_environment  # noqa F401 isort:skip
 import argparse
 import os
 import random
+import warnings
 import numpy as np
 import torch
 from wetectron.config import cfg
@@ -54,7 +55,7 @@ def train(cfg, local_rank, distributed, use_tensorboard=False):
             broadcast_buffers=False, find_unused_parameters=True,
         )
 
-    arguments = {"iteration": 0}
+    arguments = {"iteration": 0, "iter_size": cfg.SOLVER.ITER_SIZE}
     output_dir = cfg.OUTPUT_DIR
     save_to_disk = get_rank() == 0
     checkpoint_period = cfg.SOLVER.CHECKPOINT_PERIOD
@@ -236,6 +237,7 @@ def main():
 
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
+    cfg = update_iters(cfg)
     cfg.freeze()
 
     # make sure each worker has a different, yet deterministic seed if specified
@@ -280,6 +282,21 @@ def main():
 
     if not args.skip_test:
         run_test(cfg, model, args.distributed)
+
+
+def update_iters(cfg):
+    if cfg.SOLVER.ITER_SIZE > 1:
+        assert cfg.DB.METHOD != "concrete", "ITER_SIZE not supported with Concrete DropBlock"
+        old_max_iter = cfg.SOLVER.MAX_ITER
+        iter_size = cfg.SOLVER.ITER_SIZE
+        new_max_iter = old_max_iter * iter_size
+        cfg.SOLVER.MAX_ITER = new_max_iter
+
+        warnings.warn(f"SOLVER.ITER_SIZE is set to {iter_size}. "
+                      f"MAX_ITER: {old_max_iter} -> {new_max_iter}. "
+                      f"Scheduler will only be stepped every {iter_size} iterations "
+                       "so other parameters can be kept unchanged.")
+    return cfg
 
 
 if __name__ == "__main__":
