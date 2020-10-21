@@ -458,7 +458,7 @@ _C.SOLVER.IMS_PER_BATCH = 16
 
 # ITER_SIZE allows for the faking of batches
 # Effective batch size = ITER_SIZE * IMS_PER_BATCH
-_C.SOLVER.IMS_PER_BATCH
+_C.SOLVER.ITER_SIZE = -1
 
 # ---------------------------------------------------------------------------- #
 # Solver CDB

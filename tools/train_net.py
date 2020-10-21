@@ -237,7 +237,7 @@ def main():
 
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
-    cfg = update_iters(cfg)
+    update_iters()
     cfg.freeze()
 
     # make sure each worker has a different, yet deterministic seed if specified
@@ -284,7 +284,7 @@ def main():
         run_test(cfg, model, args.distributed)
 
 
-def update_iters(cfg):
+def update_iters():
     if cfg.SOLVER.ITER_SIZE > 1:
         assert cfg.DB.METHOD != "concrete", "ITER_SIZE not supported with Concrete DropBlock"
         old_max_iter = cfg.SOLVER.MAX_ITER
@@ -296,8 +296,6 @@ def update_iters(cfg):
                       f"MAX_ITER: {old_max_iter} -> {new_max_iter}. "
                       f"Scheduler will only be stepped every {iter_size} iterations "
                        "so other parameters can be kept unchanged.")
-    return cfg
-
 
 if __name__ == "__main__":
     main()
