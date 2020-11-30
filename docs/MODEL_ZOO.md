@@ -21,7 +21,7 @@ The released models have acheived slightly better results (AP) than the numbers 
 | Train data              | Eval data        | Config                       | Backbone     | AP    | AP50   |
 |:------------------------|------------------|------------------------------|--------------|-------|-------:|
 | train                   | val              | coco/V_16_coco17_point.yaml  | VGG-16       | 12.7  | 27.4   |
-| train                   | val     | configs/coco/V_16_coco14_scribble.yaml| VGG-16       | 14.3  | 30.7   |
+| train                   | val             | coco/V_16_coco14_scribble.yaml| VGG-16       | 14.3  | 30.7   |
 
 These two models are trained using partial labels. 
 The released models have acheived slightly better results than the numbers in ECCV'20 paper Tab.2.
