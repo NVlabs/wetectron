@@ -53,7 +53,7 @@ python -m torch.distributed.launch --nproc_per_node=$NGPUS tools/train_net.py \
 ```
 
 ### Known issues
-1. If you get error `RuntimeError: CUDA error: device-side assert triggered`, try to re-launch the program.
+1. If you get error `RuntimeError: CUDA error: device-side assert triggered`, check issue #22, or simply re-lanunch again.
 2. Since the voc datasets are very small, the best results usually are not achieved in the last epoch.
 Please save the intermediate models frequently (change `SOLVER.CHECKPOINT_PERIOD`) and check validation (`voc 2007 test`) results 
 (especially these models around the 1st learning rate dropping time). 
